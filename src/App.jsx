@@ -1,122 +1,251 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+
+import { useEffect, useState } from 'react';
+import {
+  Camera,
+  ImagePlus,
+  Upload,
+  Users,
+  MonitorPlay,
+  ShieldCheck,
+  X,
+  Sparkles,
+  Heart,
+  ArrowRight
+} from 'lucide-react';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [name, setName] = useState('');
+  const [files, setFiles] = useState([]);
+  const [consent, setConsent] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const previews = files.map((file) => ({
+    file,
+    url: URL.createObjectURL(file)
+  }));
+
+  useEffect(() => {
+    return () => previews.forEach((item) => URL.revokeObjectURL(item.url));
+  }, [files]);
+
+  const handleFiles = (event) => {
+    const selected = Array.from(event.target.files || []);
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (files.length + selected.length > 10) {
+      setMessage('You can select a maximum of 10 photos.');
+      event.target.value = '';
+      return;
+    }
+
+    const invalid = selected.find(
+      (file) => !validTypes.includes(file.type) || file.size > 10 * 1024 * 1024
+    );
+
+    if (invalid) {
+      setMessage('Only JPG, PNG and WebP photos up to 10 MB are allowed.');
+      event.target.value = '';
+      return;
+    }
+
+    setFiles((previous) => [...previous, ...selected]);
+    setMessage('');
+    event.target.value = '';
+  };
+
+  const removePhoto = (index) => {
+    setFiles((previous) => previous.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!name.trim()) {
+      setMessage('Please enter your name.');
+      return;
+    }
+
+    if (files.length === 0) {
+      setMessage('Please select at least one photo.');
+      return;
+    }
+
+    if (!consent) {
+      setMessage('Please provide consent before continuing.');
+      return;
+    }
+
+    setMessage('Your photos are ready for preview! Firebase upload will be connected next.');
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <header className="navbar">
+        <a href="#" className="brand">
+          <div className="brand-icon"><Camera size={22} /></div>
+          <span>Visitor<span className="brand-highlight">Moments</span></span>
+        </a>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="nav-right">
+          <span className="live-indicator"><span /> Display ready</span>
+          <button className="display-btn">
+            <MonitorPlay size={17} /> TV Display
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <main>
+        <section className="hero">
+          <div className="hero-content">
+            <div className="eyebrow">
+              <Sparkles size={15} /> EVERY VISIT HAS A STORY
+            </div>
+
+            <h1>
+              Your moments.<br />
+              Our <span>memories.</span>
+            </h1>
+
+            <p>
+              Share your favourite photos and let your memories
+              become part of our beautiful visitor slideshow.
+            </p>
+
+            <div className="hero-stats">
+              <div>
+                <Users size={19} />
+                <span>Every visitor matters</span>
+              </div>
+              <div>
+                <Heart size={19} />
+                <span>Memories that stay</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-art">
+            <div className="art-card art-back">
+              <div className="art-placeholder">✦</div>
+            </div>
+            <div className="art-card art-front">
+              <div className="art-photo">
+                <Camera size={38} />
+                <span>Beautiful moments</span>
+              </div>
+            </div>
+            <div className="floating-star">✳</div>
+          </div>
+        </section>
+
+        <section className="upload-section">
+          <div className="section-heading">
+            <div>
+              <span className="section-label">GET STARTED</span>
+              <h2>Share your moments</h2>
+              <p>It only takes a minute to add your memories.</p>
+            </div>
+            <div className="step-indicator">01 <span>/ 03</span></div>
+          </div>
+
+          <form className="upload-card" onSubmit={handleSubmit}>
+            <div className="field-group">
+              <label htmlFor="visitorName">Your name</label>
+              <input
+                id="visitorName"
+                type="text"
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={60}
+              />
+            </div>
+
+            <div className="field-group">
+              <div className="field-label-row">
+                <label>Your photographs</label>
+                <span className="file-limit">Maximum 10 photos · 10 MB each</span>
+              </div>
+
+              <label className="drop-zone" htmlFor="photoUpload">
+                <div className="upload-icon"><ImagePlus size={27} /></div>
+                <strong>Click to select your photos</strong>
+                <span>JPG, PNG or WebP</span>
+                <div className="browse-btn">
+                  <Upload size={16} /> Browse photos
+                </div>
+              </label>
+
+              <input
+                id="photoUpload"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                hidden
+                onChange={handleFiles}
+              />
+
+              {previews.length > 0 && (
+                <div className="preview-grid">
+                  {previews.map((item, index) => (
+                    <div className="preview-item" key={item.url}>
+                      <img src={item.url} alt={`Selected photo ${index + 1}`} />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        aria-label="Remove photo"
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="selected-count">
+                {files.length} of 10 photos selected
+              </div>
+            </div>
+
+            <label className="consent-row">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+              />
+              <span>
+                I agree that my selected photos may be displayed publicly
+                on the visitor slideshow. I confirm that I have permission
+                to share these photos.
+              </span>
+            </label>
+
+            {message && <div className="message">{message}</div>}
+
+            <button type="submit" className="submit-btn">
+              Preview my memories <ArrowRight size={18} />
+            </button>
+
+            <div className="privacy-note">
+              <ShieldCheck size={16} />
+              Your photos are handled with care and consent.
+            </div>
+          </form>
+        </section>
+
+        <section className="bottom-info">
+          <div><Camera size={20} /><span>Share your photographs</span></div>
+          <div><Heart size={20} /><span>Keep your memories alive</span></div>
+          <div><MonitorPlay size={20} /><span>Watch them on the big screen</span></div>
+        </section>
+      </main>
+
+      <footer>
+        <span>© 2026 Visitor Moments</span>
+        <span>Made for memories <Heart size={13} /></span>
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
