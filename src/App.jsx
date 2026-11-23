@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { initializeVisitorSession } from './firebase/firebase';
 import { registerVisitor } from './utils/visitorService';
+import Slideshow from './pages/Slideshow';
 import {
   Camera,
   ImagePlus,
@@ -22,6 +23,8 @@ function App() {
   const [message, setMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showSlideshow, setShowSlideshow] = useState(false);
+
   const previews = files.map((file) => ({
     file,
     url: URL.createObjectURL(file)
@@ -120,6 +123,12 @@ const handleSubmit = async (event) => {
   }
 };
 
+if (showSlideshow) {
+  return (
+    <Slideshow onClose={() => setShowSlideshow(false)} />
+  );
+}
+
   return (
     <div className="app">
       <header className="navbar">
@@ -130,8 +139,11 @@ const handleSubmit = async (event) => {
 
         <div className="nav-right">
           <span className="live-indicator"><span /> Display ready</span>
-          <button className="display-btn">
-            <MonitorPlay size={17} /> TV Display
+          <button
+          className="display-btn"
+          onClick={() => setShowSlideshow(true)}
+          >
+          <MonitorPlay size={17} /> TV Display
           </button>
         </div>
       </header>

@@ -1,0 +1,162 @@
+
+.slideshow-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #171624;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.slideshow-header,
+.slideshow-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 4%;
+}
+
+.slideshow-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 2px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.slideshow-dot {
+  height: 9px;
+  width: 9px;
+  background: #8c78db;
+  border-radius: 50%;
+}
+
+.slideshow-control,
+.slide-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ffffff15;
+  color: white;
+  border: 1px solid #ffffff25;
+  border-radius: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.slideshow-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4%;
+  gap: 15px;
+}
+
+.slide-photo-container {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide-photo {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  animation: slideFade .8s ease;
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.slide-caption {
+  text-align: center;
+}
+
+.slide-caption > span {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #a79ad9;
+}
+
+.slide-caption h2 {
+  font-size: 24px;
+  margin: 5px 0;
+}
+
+.slide-caption p {
+  color: #a5a3b3;
+  font-size: 12px;
+}
+
+.slideshow-footer {
+  border-top: 1px solid #ffffff18;
+}
+
+.slide-counter,
+.slideshow-status {
+  font-size: 11px;
+  color: #b6b3c5;
+  letter-spacing: 1px;
+}
+
+.slide-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.slide-controls button {
+  padding: 10px;
+}
+
+.slide-controls button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.slideshow-empty {
+  text-align: center;
+  color: #b6b3c5;
+  padding: 30px;
+}
+
+.slideshow-empty h2 {
+  color: white;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 600px) {
+  .slideshow-header,
+  .slideshow-footer {
+    padding: 14px;
+  }
+
+  .slideshow-status {
+    display: none;
+  }
+
+  .slide-caption h2 {
+    font-size: 19px;
+  }
+}
