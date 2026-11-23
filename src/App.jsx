@@ -1,5 +1,6 @@
-
 import { useEffect, useState } from 'react';
+import { initializeVisitorSession } from './firebase/firebase';
+import { registerVisitor } from './utils/visitorService';
 import {
   Camera,
   ImagePlus,
@@ -19,11 +20,23 @@ function App() {
   const [files, setFiles] = useState([]);
   const [consent, setConsent] = useState(false);
   const [message, setMessage] = useState('');
-
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const previews = files.map((file) => ({
     file,
     url: URL.createObjectURL(file)
   }));
+
+  useEffect(() => {
+  initializeVisitorSession()
+    .then((user) => {
+      console.log('Firebase connected successfully!');
+      console.log('Visitor session ID:', user.uid);
+    })
+    .catch((error) => {
+      console.error('Firebase connection failed:', error);
+    });
+}, []);
 
   useEffect(() => {
     return () => previews.forEach((item) => URL.revokeObjectURL(item.url));
@@ -58,26 +71,54 @@ function App() {
     setFiles((previous) => previous.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  
+const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    if (!name.trim()) {
-      setMessage('Please enter your name.');
-      return;
-    }
+  if (!name.trim()) {
+    setMessage('Please enter your name.');
+    return;
+  }
 
-    if (files.length === 0) {
-      setMessage('Please select at least one photo.');
-      return;
-    }
+  if (files.length === 0) {
+    setMessage('Please select at least one photo.');
+    return;
+  }
 
-    if (!consent) {
-      setMessage('Please provide consent before continuing.');
-      return;
-    }
+  if (!consent) {
+    setMessage('Please provide consent before continuing.');
+    return;
+  }
 
-    setMessage('Your photos are ready for preview! Firebase upload will be connected next.');
-  };
+  setIsUploading(true);
+  setUploadProgress(0);
+  setMessage('Preparing your upload...');
+
+  try {
+    const user = await initializeVisitorSession();
+
+    const result = await registerVisitor({
+      user,
+      name,
+      files,
+      onProgress: setUploadProgress
+    });
+
+    setMessage(
+      `Success! ${result.uploadedPhotos.length} photos uploaded. Your visitor ID is ${result.visitorId}.`
+    );
+
+    setFiles([]);
+    setName('');
+    setConsent(false);
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    setMessage(error.message || 'Something went wrong. Please try again.');
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   return (
     <div className="app">
@@ -222,10 +263,26 @@ function App() {
 
             {message && <div className="message">{message}</div>}
 
-            <button type="submit" className="submit-btn">
-              Preview my memories <ArrowRight size={18} />
+            <button 
+            type="submit"
+            className="submit-btn"
+            disabled={isUploading}
+            >
+            {isUploading
+            ? `Uploading... ${uploadProgress}%`
+            : 'Upload my memories'}
+            {!isUploading && <ArrowRight size={18} />}
             </button>
-
+            
+            {isUploading && (
+            <div className="upload-progress">
+            <div
+            className="upload-progress-fill"
+            style={{ width: `${uploadProgress}%` }}
+            />
+            </div>
+            )}
+            
             <div className="privacy-note">
               <ShieldCheck size={16} />
               Your photos are handled with care and consent.
