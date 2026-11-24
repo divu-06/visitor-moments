@@ -7,8 +7,22 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 
+import { uploadPhoto, validatePhoto } from './cloudinary';
 import { db } from '../firebase/firebase';
-import { uploadPhoto } from './cloudinary';
+
+
+function withTimeout(promise, ms, message) {
+  let timer;
+
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(message));
+    }, ms);
+  });
+
+  return Promise.race([promise, timeout])
+    .finally(() => clearTimeout(timer));
+}
 
 export async function registerVisitor({
   user,
@@ -27,19 +41,30 @@ export async function registerVisitor({
     throw new Error('Please enter your name.');
   }
 
-  if (!files.length) {
+  if (visitorName.length > 50) {
+    throw new Error('Name cannot exceed 50 characters.');
+  }
+
+  if (!files || files.length === 0) {
     throw new Error('Please select at least one photo.');
   }
 
+  // Validate every file before any database writes or uploads.
+  files.forEach(validatePhoto);
+
   // Save visitor information.
-  await setDoc(
+  await withTimeout(
+  setDoc(
     doc(db, 'visitors', visitorId),
     {
       visitorName,
       lastVisitAt: serverTimestamp()
     },
     { merge: true }
-  );
+  ),
+  15000,
+  'Could not reach the server. Check your connection and try again.'
+);
 
   const uploadedPhotos = [];
 
@@ -56,10 +81,11 @@ export async function registerVisitor({
       createdAt: serverTimestamp()
     };
 
-    const photoRef = await addDoc(
-      collection(db, 'photos'),
-      photoData
-    );
+    const photoRef = await withTimeout(
+  addDoc(collection(db, 'photos'), photoData),
+  15000,
+  'Could not save the photo. Check your connection and try again.'
+);
 
     uploadedPhotos.push({
       id: photoRef.id,
