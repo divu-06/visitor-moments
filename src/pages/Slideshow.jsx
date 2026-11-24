@@ -79,14 +79,18 @@ function Slideshow({ onClose }) {
   }, [photos.length]);
 
   const nextPhoto = () => {
-    setCurrentIndex((previous) => (previous + 1) % photos.length);
-  };
+  if (photos.length === 0) return;
+
+  setCurrentIndex((previous) => (previous + 1) % photos.length);
+};
 
   const previousPhoto = () => {
-    setCurrentIndex(
-      (previous) => (previous - 1 + photos.length) % photos.length
-    );
-  };
+  if (photos.length === 0) return;
+
+  setCurrentIndex(
+    (previous) => (previous - 1 + photos.length) % photos.length
+  );
+};
 
   const currentPhoto = photos[currentIndex];
 
