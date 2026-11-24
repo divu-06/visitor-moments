@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { initializeVisitorSession } from './firebase/firebase';
 import { registerVisitor } from './utils/visitorService';
 import Slideshow from './pages/Slideshow';
+import MyPhotos from './components/MyPhotos';
 import {
   Camera,
   ImagePlus,
@@ -24,6 +25,7 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showSlideshow, setShowSlideshow] = useState(false);
+  const [uid, setUid] = useState(null);
 
   const previews = files.map((file) => ({
     file,
@@ -35,6 +37,7 @@ function App() {
     .then((user) => {
       console.log('Firebase connected successfully!');
       console.log('Visitor session ID:', user.uid);
+      setUid(user.uid);
     })
     .catch((error) => {
       console.error('Firebase connection failed:', error);
@@ -210,7 +213,7 @@ if (showSlideshow) {
                 placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                maxLength={60}
+                maxLength={50}
               />
             </div>
 
@@ -300,6 +303,7 @@ if (showSlideshow) {
               Your photos are handled with care and consent.
             </div>
           </form>
+          {uid && <MyPhotos uid={uid} />}
         </section>
 
         <section className="bottom-info">
