@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /visitors/{visitorId} {
+      allow read: if request.auth != null
+        && request.auth.uid == visitorId;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == visitorId
+        && request.resource.data.keys().hasOnly(['visitorName', 'lastVisitAt'])
+        && request.resource.data.visitorName is string
+        && request.resource.data.visitorName.size() > 0
+        && request.resource.data.visitorName.size() <= 50
+        && request.resource.data.lastVisitAt == request.time;
+
+      allow delete: if false;
+    }
+
+    match /photos/{photoId} {
+      // Public display is by design, but only consented photos (or your own).
+      allow read: if request.auth != null
+        && (resource.data.consent == true
+            || resource.data.ownerUid == request.auth.uid);
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(
+             ['ownerUid', 'visitorName', 'imageUrl', 'publicId', 'consent', 'createdAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.visitorName is string
+        && request.resource.data.visitorName.size() > 0
+        && request.resource.data.visitorName.size() <= 50
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://res\\.cloudinary\\.com/tvl5ahn1/.+')
+        && request.resource.data.publicId is string
+        && request.resource.data.publicId.size() <= 200
+        && request.resource.data.consent == true
+        && request.resource.data.createdAt == request.time;
+
+      // Photos are immutable once created. Withdrawing consent = delete.
+      allow update: if false;
+
+      allow delete: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+    }
+  }
+}
