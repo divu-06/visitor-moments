@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import {
   collection,
@@ -20,10 +19,8 @@ function Slideshow({ onClose }) {
   const [paused, setPaused] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
   const hasReceivedInitialSnapshot = useRef(false);
 
-  // Listen for shared photos in real time.
   useEffect(() => {
     const photosQuery = query(
       collection(db, 'photos'),
@@ -34,37 +31,37 @@ function Slideshow({ onClose }) {
     const unsubscribe = onSnapshot(
       photosQuery,
       (snapshot) => {
-        const newPhotos = snapshot.docs.map((item) => ({
-          id: item.id,
-          ...item.data()
-        }));
+  const newPhotos = snapshot.docs.map((item) => ({
+    id: item.id,
+    ...item.data()
+  }));
 
-        // Ignore existing photos in the initial snapshot.
-        if (hasReceivedInitialSnapshot.current) {
-          const addedPhotos = snapshot.docChanges().filter(
-            (change) => change.type === 'added'
-          );
+  // Ignore existing photos in the initial snapshot.
+  if (hasReceivedInitialSnapshot.current) {
+    const addedPhotos = snapshot.docChanges().filter(
+      (change) => change.type === 'added'
+    );
 
-          // Move to the latest newly added photo.
-          if (addedPhotos.length > 0) {
-            const latestAddedPhoto = addedPhotos[addedPhotos.length - 1];
+    // Move to the latest newly added photo.
+    if (addedPhotos.length > 0) {
+      const latestAddedPhoto = addedPhotos[addedPhotos.length - 1];
 
-            const latestAddedIndex = newPhotos.findIndex(
-              (photo) => photo.id === latestAddedPhoto.doc.id
-            );
+      const latestAddedIndex = newPhotos.findIndex(
+        (photo) => photo.id === latestAddedPhoto.doc.id
+      );
 
-            if (latestAddedIndex !== -1) {
-              setCurrentIndex(latestAddedIndex);
-            }
-          }
-        }
+      if (latestAddedIndex !== -1) {
+        setCurrentIndex(latestAddedIndex);
+      }
+    }
+  }
 
-        hasReceivedInitialSnapshot.current = true;
+  hasReceivedInitialSnapshot.current = true;
 
-        setPhotos(newPhotos);
-        setLoading(false);
-        setError('');
-      },
+  setPhotos(newPhotos);
+  setLoading(false);
+  setError('');
+},
       (err) => {
         console.error('Slideshow error:', err);
         setError('Unable to load photographs.');
@@ -75,25 +72,23 @@ function Slideshow({ onClose }) {
     return () => unsubscribe();
   }, []);
 
-  // Automatically advance every 5 seconds.
+  // Automatically advance 5 seconds after the current photo appears.
   useEffect(() => {
     if (paused || photos.length <= 1) return;
 
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       setCurrentIndex((previous) => (previous + 1) % photos.length);
     }, SLIDE_DURATION);
 
-    return () => clearInterval(timer);
-  }, [paused, photos.length]);
+    return () => clearTimeout(timer);
+  }, [paused, photos.length, currentIndex]);
 
-  // Keep the current index valid when photos are removed.
   useEffect(() => {
     if (currentIndex >= photos.length) {
       setCurrentIndex(0);
     }
   }, [photos.length, currentIndex]);
 
-  // Keyboard navigation.
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
@@ -107,18 +102,18 @@ function Slideshow({ onClose }) {
   }, [photos.length]);
 
   const nextPhoto = () => {
-    if (photos.length === 0) return;
+  if (photos.length === 0) return;
 
-    setCurrentIndex((previous) => (previous + 1) % photos.length);
-  };
+  setCurrentIndex((previous) => (previous + 1) % photos.length);
+};
 
   const previousPhoto = () => {
-    if (photos.length === 0) return;
+  if (photos.length === 0) return;
 
-    setCurrentIndex(
-      (previous) => (previous - 1 + photos.length) % photos.length
-    );
-  };
+  setCurrentIndex(
+    (previous) => (previous - 1 + photos.length) % photos.length
+  );
+};
 
   const currentPhoto = photos[currentIndex];
 
