@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   collection,
   onSnapshot,
@@ -21,6 +21,9 @@ function Slideshow({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const hasReceivedInitialSnapshot = useRef(false);
+
+  // Listen for shared photos in real time.
   useEffect(() => {
     const photosQuery = query(
       collection(db, 'photos'),
@@ -36,6 +39,28 @@ function Slideshow({ onClose }) {
           ...item.data()
         }));
 
+        // Ignore existing photos in the initial snapshot.
+        if (hasReceivedInitialSnapshot.current) {
+          const addedPhotos = snapshot.docChanges().filter(
+            (change) => change.type === 'added'
+          );
+
+          // Move to the latest newly added photo.
+          if (addedPhotos.length > 0) {
+            const latestAddedPhoto = addedPhotos[addedPhotos.length - 1];
+
+            const latestAddedIndex = newPhotos.findIndex(
+              (photo) => photo.id === latestAddedPhoto.doc.id
+            );
+
+            if (latestAddedIndex !== -1) {
+              setCurrentIndex(latestAddedIndex);
+            }
+          }
+        }
+
+        hasReceivedInitialSnapshot.current = true;
+
         setPhotos(newPhotos);
         setLoading(false);
         setError('');
@@ -50,6 +75,7 @@ function Slideshow({ onClose }) {
     return () => unsubscribe();
   }, []);
 
+  // Automatically advance every 5 seconds.
   useEffect(() => {
     if (paused || photos.length <= 1) return;
 
@@ -60,12 +86,14 @@ function Slideshow({ onClose }) {
     return () => clearInterval(timer);
   }, [paused, photos.length]);
 
+  // Keep the current index valid when photos are removed.
   useEffect(() => {
     if (currentIndex >= photos.length) {
       setCurrentIndex(0);
     }
   }, [photos.length, currentIndex]);
 
+  // Keyboard navigation.
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
@@ -79,18 +107,18 @@ function Slideshow({ onClose }) {
   }, [photos.length]);
 
   const nextPhoto = () => {
-  if (photos.length === 0) return;
+    if (photos.length === 0) return;
 
-  setCurrentIndex((previous) => (previous + 1) % photos.length);
-};
+    setCurrentIndex((previous) => (previous + 1) % photos.length);
+  };
 
   const previousPhoto = () => {
-  if (photos.length === 0) return;
+    if (photos.length === 0) return;
 
-  setCurrentIndex(
-    (previous) => (previous - 1 + photos.length) % photos.length
-  );
-};
+    setCurrentIndex(
+      (previous) => (previous - 1 + photos.length) % photos.length
+    );
+  };
 
   const currentPhoto = photos[currentIndex];
 
