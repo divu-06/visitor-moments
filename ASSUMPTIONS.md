@@ -12,6 +12,7 @@ Every gap in the assignment that I filled, with the option I chose and why. Limi
 ## 2. Slideshow behaviour
 
 - **Choice:** the TV Display plays all consented photos in one shared slideshow, oldest first, looping, 5 seconds per photo (`SLIDE_DURATION` in `Slideshow.jsx`). It listens with Firestore `onSnapshot`, so a new upload appears without a refresh.
+- **New photos play next:** when a new photo arrives while the TV Display is open, the slideshow jumps to it straight away and then continues the normal rotation. Photos already present when the display opens are not treated as new. A visitor's batch arrives one photo at a time, so the display moves to each as it arrives and ends on the last. If the display is paused, it shows the new photo and stays paused. Deleting a photo does not move the slideshow. Each newly displayed photo gets a full 5 seconds before the next automatic advance, and manual Next and Previous also restart the timer.
 - **Returning visitors:** their earlier photos are already in the shared slideshow, so they play again together with the new ones. There is no separate private playback.
 - **Display device:** any browser can open the TV Display from the app (full-screen is up to the browser). There is no separate admin or display login.
 - **Caption:** only the visitor's name and the photo are shown.

@@ -66,3 +66,13 @@ Key AI interactions during development. I used **ChatGPT** for project setup and
 - **Prompt:** I asked for small tests that I can explain.
 - **AI output:** 7 Vitest tests for `validatePhoto` (JPG, PNG and WebP accepted; GIF, PDF and a file over 10 MB rejected; exactly 10 MB accepted). I checked first that `package.json` had Vitest but no `test` script, and added the script.
 - **Result:** `npm test -- --run` showed 7 of 7 passing. Everything else (rules, Cloudinary rejection, timeouts, consent, deletion) is covered by the manual tests listed in `ASSUMPTIONS.md`.
+
+## 10. New photos play next, and slide timing (ChatGPT code, found and reviewed with Claude)
+
+- **How the gap was found:** in a requirement-by-requirement audit with Claude, I noticed that a new photo joined the end of the loop and could wait a long time before playing, which does not match "as soon as an upload completes, the photo plays".
+- **AI output (ChatGPT):** code that uses Firestore `snapshot.docChanges()` to detect newly added photos and move the slideshow to the newest one, ignoring the first snapshot.
+- **What I checked:** no jump on first load; a new upload plays next; a batch ends on the latest photo; deleting a photo does not jump; a paused slideshow shows the new photo and stays paused.
+- **AI output was incomplete:** reviewing the code, Claude pointed out that the existing `setInterval` timer did not restart when the photo changed, so a new or manually selected photo could show for less than 5 seconds.
+- **Fix:** replaced `setInterval` with `setTimeout` and added `currentIndex` to the effect's dependencies, so each newly displayed photo gets a full 5 seconds.
+- **Final checks:** four manual timing tests passed: new upload, Next and Previous, pause and play, and deletion during playback.
+- `npm run build` and all 7 Vitest tests still passed after the change.

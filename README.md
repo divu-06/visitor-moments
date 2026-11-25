@@ -8,7 +8,7 @@
 Visitor Moments lets visitors share photos in a live slideshow on a TV or computer display.
 
 1. A visitor enters their name, selects photos and ticks a consent box agreeing to public display.
-2. As soon as the upload completes, the photos join a shared full-screen slideshow (the **TV Display**), which updates in real time and shows each photo for 5 seconds.
+2. As soon as an upload completes, the photo plays next on the shared full-screen slideshow (the **TV Display**), which updates in real time and then continues rotating, showing each photo for 5 seconds.
 3. A returning visitor (same browser) sees their earlier photos in "Your uploaded photos", and those photos also keep playing in the slideshow. The visitor can delete any of their photos, and it leaves the slideshow immediately.
 
 ## 2. Features
@@ -122,6 +122,7 @@ The app is deployed on Vercel from the `main` branch. Add the same `VITE_*` vari
 | Text file renamed `.jpg` rejected by Cloudinary | Passed |
 | 5120x2160 photo stored at 1920x810 | Passed |
 | Two photos uploaded together and shown on the TV Display | Passed |
+| New upload plays next on an open TV Display; initial photos and deletions do not trigger jumps; each slide gets a full 5 seconds | Passed |
 | Offline upload shows an error after about 15 seconds and the form recovers | Passed |
 | Forced upload timeout shows "Upload timed out" | Passed |
 | Visitor deletes own photo and it leaves the TV Display in real time | Passed |
