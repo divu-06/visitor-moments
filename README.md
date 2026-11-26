@@ -114,7 +114,9 @@ The app is deployed on Vercel from the `main` branch. Add the same `VITE_*` vari
 
 **Automated:** `npm test -- --run` runs 7 unit tests for `validatePhoto` (JPG, PNG and WebP accepted; GIF, PDF and files over 10 MB rejected; exactly 10 MB accepted).
 
-**Manual tests:**
+The full test plan, with steps, expected results and what was not tested, is in [TESTS.md](TESTS.md).
+
+**Manual tests (summary):**
 
 | Test | Result |
 |---|---|
@@ -136,5 +138,6 @@ The app is deployed on Vercel from the `main` branch. Add the same `VITE_*` vari
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Stack choices, data model, diagrams |
 | [ASSUMPTIONS.md](ASSUMPTIONS.md) | Every gap filled, limits and test evidence |
 | [AI_LOG.md](AI_LOG.md) | AI interactions, mistakes and fixes |
+| [TESTS.md](TESTS.md) | Automated tests and the manual test plan with results |
 | [firestore.rules](firestore.rules) | Firestore security rules |
 | [.env.example](.env.example) | Environment variable placeholders |

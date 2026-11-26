@@ -68,4 +68,4 @@ React + Vite, Firebase Anonymous Auth and Firestore, Cloudinary (free tier, unsi
 
 - Automated: 7 Vitest tests for `validatePhoto` pass (JPG, PNG, WebP accepted; GIF, PDF and a file over 10 MB rejected; exactly 10 MB accepted).
 - Manual (24 Nov 2026): invalid batch blocked with nothing uploaded; renamed `.txt` as `.jpg` rejected by Cloudinary; large image (5120x2160) stored as 1920x810; two photos uploaded together and displayed; offline upload shows an error after about 15 seconds and the form recovers; forced 1 ms upload timeout shows "Upload timed out"; client `folder` parameter removed and uploads still land in `visitor-moments`; a visitor can delete their own photo and it leaves the TV display in real time; a second anonymous session cannot see or delete another visitor's photos.
-- The full manual test plan will be in the Tests document.
+- The full test plan and results are in `TESTS.md`, and a summary is in section 7 of `README.md`.
