@@ -110,10 +110,10 @@ const handleSubmit = async (event) => {
       onProgress: setUploadProgress
     });
 
-    setMessage(
-      `Success! ${result.uploadedPhotos.length} photos uploaded. Your visitor ID is ${result.visitorId}.`
-    );
-
+    const count = result.uploadedPhotos.length;
+setMessage(
+  `${count} ${count === 1 ? 'photo' : 'photos'} uploaded successfully! Your photos are now part of the shared slideshow.`
+);
     setFiles([]);
     setName('');
     setConsent(false);
@@ -201,7 +201,6 @@ if (showSlideshow) {
               <h2>Share your moments</h2>
               <p>It only takes a minute to add your memories.</p>
             </div>
-            <div className="step-indicator">01 <span>/ 03</span></div>
           </div>
 
           <form className="upload-card" onSubmit={handleSubmit}>
